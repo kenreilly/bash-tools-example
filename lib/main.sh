@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
-
 source ./lib/config.sh
 source ./lib/utility.sh
 source ./lib/api/file-io.sh
+source ./lib/api/log-processor.sh
 
 function main() {
 
 	init_dir './data'
+	init_dir './data/logs'
 
 	declare -A -x command_table=(
 		['scan-files']="scan_large_files" 
-		['process-logs']="process_log_data"
+		['process-logs']="process_logs"
 	)
 
 	local commands="${!command_table[@]}"
