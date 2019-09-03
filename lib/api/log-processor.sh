@@ -2,7 +2,7 @@
 
 function process_logs() {
 
-	declare -A -x -g log_data=()\
+	declare -A -x -g log_data=()
 
 	local logs="$( find $_ROOT/data/logs/*.log -type f -exec ls -al {} \; 2>/dev/null | sort -nr -k1 | awk '{print $9}'  )"	
 	local total_files=0
