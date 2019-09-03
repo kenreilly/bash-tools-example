@@ -11,6 +11,3 @@ function str_split() {
 	declare -a -x -g str_split_result=()
 	IFS="$2"; read -ra str_split_result <<< $1; IFS=' '
 }
-
-# function compare_date() { 
-# 	return  && 0 || 1; }

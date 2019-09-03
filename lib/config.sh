@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Enable Strict Mode
-# set -euo pipefail
-# IFS=$'\n\t'
-
 # Error Handling
 function on_error() { echo "error: [ ${BASH_SOURCE[1]} at line ${BASH_LINENO[0]} ]"; }
 set -o errtrace
