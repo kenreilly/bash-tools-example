@@ -12,9 +12,5 @@ function str_split() {
 	IFS="$2"; read -ra str_split_result <<< $1; IFS=' '
 }
 
-function compare_date() {
-
-	local a=$(date -d $1 +%s)
-	local b=$(date -d $2 +%s)
-	return [ $a -ge $b ] && 0 || 1
-}
+# function compare_date() { 
+# 	return  && 0 || 1; }

@@ -5,9 +5,14 @@ function process_logs() {
 	declare -A -x -g log_data=()
 	declare -A -x -g temp_table=()
 
-	local logs="$( find $_ROOT/data/logs -type f -exec ls -al {} \; | awk '{print $9}' )"	
+	local logs="$( find $_ROOT/data/logs/*.log -type f -exec ls -al {} \; 2>/dev/null | sort -nr -k1 | awk '{print $9}'  )"	
 	local total_files=0
 	local total_lines=0
+
+	if [[ ${#logs} == 0 ]]; then 
+		printf "\n No log files to process, exiting. \n\n"
+		exit
+	fi
 
 	for record in $logs; do 
 
@@ -24,7 +29,15 @@ function process_logs() {
 		total_files=$(($total_files+1))
 	done
 	
-	printf "Processed \e[33m$total_files\e[0m files / \e[33m$total_lines\e[0m lines total \n"
+	printf "\n Processed \e[33m$total_files\e[0m files / \e[33m$total_lines\e[0m lines total \n\n"
+
+	local timestamp=$(get_timestamp)
+	local path="reports/report_$timestamp.yaml"
+
+	create_report $path
+	printf " Created report \e[33m./$path\e[0m"
+
+	create_archive
 	return 0
 }
 
@@ -39,20 +52,39 @@ function process_entry() {
 	printf "  name:\e[32m $name \e[0m \n"
 	printf "  size:\e[33m $size \e[0m \n"
 
-	if [[ ${log_data[$2]+true} ]]; then
+	if [[ ${log_data[name]+true} ]]; then
 		
-		# echo ${log_data[$2]}
-		# echo $line
-		echo " item already in table" : 
-		
+		local item=${log_data[name]}
+		local item_date=${item#*" "}
+
+		if [[ $item_date > $date ]]; then
+			add_item $name $size $date
+		fi
 	else
-		log_data[$2]=$1;
+		add_item $name $size $date
 	fi
-	
+
 	return 0
 }
 
-# function filtered_sort() {
+function add_item() { log_data[$1]="$2 $3"; }
 
+function create_report() {
 
-# }
+	local path=$1
+	local yaml_out="files:\n"
+
+	for name in ${!log_data[@]}; do
+
+		local item=${log_data[$name]}
+		local item_date=${item#*" "}
+		local item_size=${item%$item_date}
+
+		yaml_out=${yaml_out}"  -\n"
+		yaml_out=${yaml_out}"    name: $name \n"
+		yaml_out=${yaml_out}"    date: $item_date \n"
+		yaml_out=${yaml_out}"    size: $item_size \n"
+	done
+
+	write_file $path "$yaml_out"
+}
